@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:mini_game/component/custom_hitbox.dart';
+import 'package:mini_game/component/player.dart';
 import 'package:mini_game/kings_treasure.dart';
 
 class CollectableObject extends SpriteAnimationComponent
@@ -50,19 +51,20 @@ class CollectableObject extends SpriteAnimationComponent
     return super.onLoad();
   }
 
-  void collidingWithPLayer() {
+  void collidingWithPLayer(Player player) {
     if (!_isCollected) {
       animation = SpriteAnimation.fromFrameData(
         game.images
             .fromCache('Live and Coins/$colletctableObject Hit (18x14).png'),
         SpriteAnimationData.sequenced(
-          amount: 10,
+          amount: 2,
           stepTime: stepTime,
           textureSize: Vector2(18, 14),
           loop: false,
         ),
       );
       _isCollected = true;
+      player.diamonds += 1;
       Future.delayed(Duration(milliseconds: 100), () {
         removeFromParent();
       });

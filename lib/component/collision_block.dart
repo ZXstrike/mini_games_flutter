@@ -10,6 +10,5 @@ class CollisionBlock extends PositionComponent {
           position: position,
           size: size,
         ) {
-    super.debugMode = true;
   }
 }

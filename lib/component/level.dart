@@ -5,6 +5,7 @@ import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
 import 'package:mini_game/component/collision_block.dart';
 import 'package:mini_game/component/collectable_object.dart';
+import 'package:mini_game/component/door.dart';
 import 'package:mini_game/component/player.dart';
 
 class Level extends World {
@@ -48,6 +49,13 @@ class Level extends World {
               position: Vector2(spawnPoint.x, spawnPoint.y),
             );
             add(diamond);
+            break;
+          case 'Door':
+            final door = Door(
+              position: Vector2(spawnPoint.x, spawnPoint.y),
+              size: Vector2(46, 56),
+            );
+            add(door);
             break;
         }
       }

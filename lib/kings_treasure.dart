@@ -4,6 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/painting.dart';
+import 'package:mini_game/component/jump_pad.dart';
 import 'package:mini_game/component/player.dart';
 import 'package:mini_game/component/level.dart';
 
@@ -18,14 +19,19 @@ class KingsTreasure extends FlameGame
 
   late JoystickComponent joystick;
 
-  bool showJoystick = false;
+  late TextComponent textBox;
+
+  bool showController = true;
 
   @override
   FutureOr<void> onLoad() async {
     await images.loadAllImages();
-    super.debugMode = true;
+    // super.debugMode = true;
 
-    await images.load('Live and Coins/Big Diamond Idle (18x14).png');
+    textBox = await TextComponent(
+        text: 'Diamonds: ${player.diamonds}',
+        position: Vector2(0, 0),
+        size: Vector2(40, 40));
 
     final world = Level(player: player, levelName: 'Lvl');
 
@@ -34,13 +40,18 @@ class KingsTreasure extends FlameGame
 
     cam.viewfinder.anchor = Anchor.topLeft;
 
+    cam.viewport.add(textBox);
+
     addAll([
       cam,
       world,
     ]);
 
-    if (showJoystick) {
-      addController(cam);
+    if (showController) {
+      addController();
+
+      add(joystick);
+      add(JumpPad());
     }
 
     return super.onLoad();
@@ -48,13 +59,16 @@ class KingsTreasure extends FlameGame
 
   @override
   void update(double dt) {
-    if (showJoystick) {
+    if (showController) {
       observeControllers();
     }
+
+    textBox.text = 'Diamonds: ${player.diamonds}';
+
     super.update(dt);
   }
 
-  void addController(CameraComponent cam) {
+  void addController() {
     joystick = JoystickComponent(
         knob: SpriteComponent(
           sprite: Sprite(
@@ -71,7 +85,6 @@ class KingsTreasure extends FlameGame
           bottom: 32,
         ),
         position: Vector2(0, 0));
-    cam.viewport.add(joystick);
   }
 
   void observeControllers() {
@@ -90,4 +103,6 @@ class KingsTreasure extends FlameGame
         player.horizontalMovement = 0;
     }
   }
+
+  void _loadWorld() {}
 }

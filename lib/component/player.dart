@@ -6,10 +6,19 @@ import 'package:flutter/services.dart';
 import 'package:mini_game/component/collectable_object.dart';
 import 'package:mini_game/component/collision_block.dart';
 import 'package:mini_game/component/custom_hitbox.dart';
+import 'package:mini_game/component/door.dart';
 import 'package:mini_game/component/utils.dart';
 import 'package:mini_game/kings_treasure.dart';
 
-enum PlayerState { idle, running, jumping, falling, _attacking }
+enum PlayerState {
+  idle,
+  running,
+  jumping,
+  falling,
+  attacking,
+  appearring,
+  disapearring
+}
 
 class Player extends SpriteAnimationGroupComponent
     with HasGameRef<KingsTreasure>, KeyboardHandler, CollisionCallbacks {
@@ -20,10 +29,18 @@ class Player extends SpriteAnimationGroupComponent
   late final SpriteAnimation idleAnimation;
   late final SpriteAnimation runningAnimation;
   late final SpriteAnimation jumpingAnimation;
-  late final SpriteAnimation _attackingAnimation;
+  late final SpriteAnimation attackingAnimation;
   late final SpriteAnimation fallingAnimation;
+  late final SpriteAnimation appearringAnimation;
+  late final SpriteAnimation disapearringAnimation;
+
+  int health = 100;
+  int diamonds = 0;
+  final int dmg = 10;
 
   bool isAttacking = false;
+  bool isAppearring = true;
+  bool isCanMove = true;
 
   final double stepTime = 0.1;
   final Vector2 textureSize = Vector2(78, 58);
@@ -49,8 +66,9 @@ class Player extends SpriteAnimationGroupComponent
 
   @override
   FutureOr<void> onLoad() {
+    priority = 100;
+
     _onloadAllAnimations();
-    debugMode = true;
 
     add(RectangleHitbox(
       position: Vector2(hitbox.offestX, hitbox.offestY),
@@ -99,16 +117,34 @@ class Player extends SpriteAnimationGroupComponent
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    if (other is CollectableObject) other.collidingWithPLayer();
+    if (other is CollectableObject) other.collidingWithPLayer(this);
+    if (other is Door && isAttacking) {
+      other.openDoor();
+      Future.delayed(Duration(milliseconds: 100), () {
+        isAppearring = false;
+        Future.delayed(Duration(milliseconds: 200), () {
+          isCanMove = false;
+          other.closeDoor();
+          Future.delayed(Duration(milliseconds: 5000), () {
+            isAppearring = true;
+            isCanMove = true;
+          });
+        });
+      });
+    }
+    ;
+    print(diamonds);
     super.onCollision(intersectionPoints, other);
   }
 
   void _onloadAllAnimations() {
-    idleAnimation = _spriteAnimation('Idle (78x58).png', 11);
-    runningAnimation = _spriteAnimation('Run (78x58).png', 8);
-    jumpingAnimation = _spriteAnimation('Jump (78x58).png', 1);
-    _attackingAnimation = _spriteAnimation('Attack (78x58).png', 3);
-    fallingAnimation = _spriteAnimation('Fall (78x58).png', 1);
+    idleAnimation = _spriteAnimation('Idle (78x58).png', 11, true);
+    runningAnimation = _spriteAnimation('Run (78x58).png', 8, true);
+    jumpingAnimation = _spriteAnimation('Jump (78x58).png', 1, true);
+    attackingAnimation = _spriteAnimation('Attack (78x58).png', 3, true);
+    fallingAnimation = _spriteAnimation('Fall (78x58).png', 1, true);
+    appearringAnimation = _spriteAnimation('Door Out (78x58).png', 3, false);
+    disapearringAnimation = _spriteAnimation('Door In (78x58).png', 8, false);
 
     // Add all animations to the animations map
     animations = {
@@ -116,7 +152,9 @@ class Player extends SpriteAnimationGroupComponent
       PlayerState.running: runningAnimation,
       PlayerState.jumping: jumpingAnimation,
       PlayerState.falling: fallingAnimation,
-      PlayerState._attacking: _attackingAnimation,
+      PlayerState.attacking: attackingAnimation,
+      PlayerState.appearring: appearringAnimation,
+      PlayerState.disapearring: disapearringAnimation,
     };
 
     // Set the current animation to idle
@@ -126,6 +164,7 @@ class Player extends SpriteAnimationGroupComponent
   SpriteAnimation _spriteAnimation(
     String animation_file_name,
     int amount,
+    bool loop,
   ) {
     return SpriteAnimation.fromFrameData(
       game.images.fromCache('$character/$animation_file_name'),
@@ -133,6 +172,7 @@ class Player extends SpriteAnimationGroupComponent
         amount: amount,
         stepTime: stepTime,
         textureSize: textureSize,
+        loop: loop,
       ),
     );
   }
@@ -152,8 +192,11 @@ class Player extends SpriteAnimationGroupComponent
 
     if (velocity.y < 0) playerState = PlayerState.jumping;
 
-    if (isAttacking) playerState = PlayerState._attacking;
-    ;
+    if (isAttacking) playerState = PlayerState.attacking;
+
+    if (isAppearring && !isCanMove) playerState = PlayerState.appearring;
+
+    if (!isAppearring) playerState = PlayerState.disapearring;
 
     current = playerState;
   }
@@ -227,7 +270,7 @@ class Player extends SpriteAnimationGroupComponent
     hasJumped = false;
   }
 
-  void _attack() {
+  void _playerAttack() {
     if (isAttacking) {
       print('Attacking');
     } else {
