@@ -1,0 +1,53 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "Lvl.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "Lvl.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 421.33333333333337,
+                "y": 275.33333333333326
+            }
+        },
+        "door.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "king_treasure_misc.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "king_treasure_tileset.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.imagePath": "C:/Users/strik/Desktop/Flutter Project/test-intern-studyo.io/mini_games/assets/images/Door",
+    "map.height": 20,
+    "map.lastUsedFormat": "tmx",
+    "map.width": 40,
+    "openFiles": [
+        "king_treasure_misc.tsx",
+        "Lvl.tmx"
+    ],
+    "project": "king_treasure.tiled-project",
+    "recentFiles": [
+        "king_treasure_misc.tsx",
+        "Lvl.tmx",
+        "king_treasure_tileset.tsx",
+        "door.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 56,
+        "width": 46
+    }
+}
